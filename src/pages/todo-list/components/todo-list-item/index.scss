@@ -1,0 +1,12 @@
+.todo-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+    padding: 10px;
+    border-radius: 2px;
+
+    &:hover {
+        background-color:rgb(200, 237, 238);
+    }
+}
