@@ -106,8 +106,8 @@ class TodoListDB {
                             .objectStore('todoListStore')
                             .openCursor(keyRange);
 
-            req.onsuccess = (event) => {
-              const cursor = event.target.result;
+            req.onsuccess = () => {
+              const cursor = req.result;
 
               if (cursor) {
                 const updateData = cursor.value;
@@ -138,8 +138,8 @@ class TodoListDB {
                             .objectStore('todoListStore')
                             .openCursor();
 
-            req.onsuccess = (event) => {
-                const cursor = event.target.result;
+            req.onsuccess = () => {
+                const cursor = req.result;
 
                 if (cursor?.value.done) {
                     const request = cursor.delete();
