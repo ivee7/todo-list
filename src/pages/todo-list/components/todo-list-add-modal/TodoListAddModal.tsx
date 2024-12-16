@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Modal, Stack, TextField, Button, Box } from '@mui/material';
-import { toggleModal, setItem } from '../../../../store/services/todo-list-slice';
+import { toggleModal, createItem } from '../../../../store/services/todo-list-slice';
 import { useAppSelector, useAppDispatch } from '../../../../store';
 
 type TodoListFormValues = {
@@ -43,7 +43,7 @@ export const TodoListAddModal = () => {
     }, [formState]);
 
     const onSubmit = (data: TodoListFormValues) => {
-        dispatch(setItem({ text: data.text }));
+        dispatch(createItem(data.text));
         dispatch(toggleModal(false));
     }
 

@@ -1,11 +1,19 @@
 import { Stack, Button } from '@mui/material';
 import { TodoListItem } from './components/todo-list-item';
-import { TTodoListItem, comparator, deleteItem, toggleStatus, toggleModal } from '../../store/services/todo-list-slice';
+import {
+    TTodoListItem,
+    comparator,
+    deleteItem,
+    toggleStatus,
+    toggleModal,
+    getItems,
+} from '../../store/services/todo-list-slice';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { TodoListSearch } from './components/todo-list-search/TodoListSearch';
 import { TodoListPanel } from './components/todo-list-panel/TodoListPanel';
 import { TodoListAddModal } from './components/todo-list-add-modal/TodoListAddModal';
 import './index.scss';
+import { useEffect } from 'react';
 
 export const TodoList = () => {
     const {
@@ -14,13 +22,9 @@ export const TodoList = () => {
     } = useAppSelector((state) => state.todoList);
     const dispatch = useAppDispatch();
 
-    const onDelete = (id: string) => {
-        dispatch(deleteItem({ id }));
-    };
-
-    const onToggleStatus = (id: string) => {
-        dispatch(toggleStatus({ id }));
-    };
+    useEffect(() => {
+        dispatch(getItems());
+    }, []);
 
     return (
         <>
@@ -46,8 +50,8 @@ export const TodoList = () => {
                                     <TodoListItem
                                         {...item}
                                         key={item.id}
-                                        onDelete={onDelete}
-                                        onToggleStatus={onToggleStatus}
+                                        onDelete={() => dispatch(deleteItem(item.id))}
+                                        onToggleStatus={() => dispatch(toggleStatus(item.id))}
                                     />
                                 ))
                             : <div className='todo-list__empty'>Задач нет</div>

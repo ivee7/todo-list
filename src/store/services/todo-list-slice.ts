@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import TodoListDB from '../../api/todo-list/index';
 
 export type TTodoListItem = {
     id: string
@@ -32,6 +33,65 @@ export function comparator(item: TTodoListItem, sorts: TSorts) {
     return item.text.includes(sorts.searchText) && (item.done === sorts.done || sorts.done === 'all');
 }
 
+export const getItems = createAsyncThunk<TTodoList, undefined>(
+    'todoList/getItems',
+    async () => {
+        return await TodoListDB.getItems();
+    }
+)
+
+export const clearCompleted = createAsyncThunk<TTodoList, undefined>(
+    'todoList/clearCompleted',
+    async (_, { dispatch }) => {
+        const response = await TodoListDB.clearCompleted();
+
+        if (response) {
+            const { payload } = await dispatch(getItems());
+            return payload;
+        }
+        return [];
+    }
+)
+
+export const deleteItem = createAsyncThunk<TTodoList, TTodoListItem['id']>(
+    'todoList/deleteItem',
+    async (id: TTodoListItem['id'], { dispatch }) => {
+        const response = await TodoListDB.deleteItem(id);
+
+        if (response) {
+            const { payload } = await dispatch(getItems());
+            return payload;
+        }
+        return [];
+    }
+)
+
+export const createItem = createAsyncThunk<TTodoList, TTodoListItem['text']>(
+    'todoList/createItem',
+    async (text: TTodoListItem['text'], { dispatch }) => {
+        const response = await TodoListDB.createItem(text);
+
+        if (response) {
+            const { payload } = await dispatch(getItems());
+            return payload;
+        }
+        return [];
+    }
+)
+
+export const toggleStatus = createAsyncThunk<TTodoList, TTodoListItem['id']>(
+    'todoList/toggleStatus',
+    async (id: TTodoListItem['id'], { dispatch }) => {
+        const response = await TodoListDB.toggleStatus(id);
+
+        if (response) {
+            const { payload } = await dispatch(getItems());
+            return payload;
+        }
+        return [];
+    }
+)
+
 export const todoListSlice = createSlice({
     name: 'todoList',
     initialState,
@@ -39,43 +99,36 @@ export const todoListSlice = createSlice({
         clearCompleted: (state) => {
             state.todoList = state.todoList.filter(({ done }) => !done);
         },
-        deleteItem: (state, action: PayloadAction<{ id: string }>) => {
-            state.todoList = state.todoList.filter(({ id }) => id !== action.payload.id);
-        },
-        setItem: (state, action: PayloadAction<{ text: string }>) => {
-            const newItem: TTodoListItem = {
-                text: action.payload.text,
-                done: false,
-                id: `id${new Date().getTime()}`
-            };
-            state.todoList = [ ...state.todoList, newItem];
-        },
         setSort: (state, action: PayloadAction<{ sortName: keyof TSorts, value: string | boolean }>) => {
             state.sorts = {
                 ...state.sorts,
                 [action.payload.sortName]: action.payload.value,
             }
         },
-        toggleStatus: (state, action: PayloadAction<{ id: string }>) => {
-            state.todoList = state.todoList.map((item) => {
-                const { id, done } = item;
-                if (id === action.payload.id) return { ...item, done: !done }
-                return item;
-            });
-        },
         toggleModal: (state, action: PayloadAction<boolean>) => {
             state.addModalOpen = action.payload;
         },
     },
+    extraReducers: builder => {
+        builder
+            .addCase(getItems.fulfilled, (state, action) => {
+                state.todoList = action.payload;
+            })
+            .addCase(deleteItem.fulfilled, (state, action) => {
+                state.todoList = action.payload;
+            })
+            .addCase(createItem.fulfilled, (state, action) => {
+                state.todoList = action.payload;
+            })
+            .addCase(toggleStatus.fulfilled, (state, action) => {
+                state.todoList = action.payload;
+            })
+            .addCase(clearCompleted.fulfilled, (state, action) => {
+                state.todoList = action.payload;
+            })
+    }
 });
 
-export const {
-    clearCompleted,
-    deleteItem,
-    setItem,
-    setSort,
-    toggleModal,
-    toggleStatus,
-} = todoListSlice.actions;
+export const { setSort, toggleModal } = todoListSlice.actions;
 
 export default todoListSlice.reducer;
