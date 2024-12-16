@@ -17,7 +17,7 @@ type TSorts = {
 export type TodoListState = {
     todoList: TTodoList
     sorts: TSorts
-    addModalOpen: boolean
+    isAddModalOpen: boolean
 };
 
 const initialState: TodoListState = {
@@ -26,67 +26,64 @@ const initialState: TodoListState = {
         done: 'all',
         searchText: '',
     },
-    addModalOpen: false,
+    isAddModalOpen: false,
 };
 
 export function comparator(item: TTodoListItem, sorts: TSorts) {
     return item.text.includes(sorts.searchText) && (item.done === sorts.done || sorts.done === 'all');
 }
 
-export const getItems = createAsyncThunk<TTodoList, undefined>(
-    'todoList/getItems',
-    async () => {
-        return await TodoListDB.getItems();
-    }
-)
+export const getItems = createAsyncThunk<TTodoList, undefined>('todoList/getItems', async () => {
+    return await TodoListDB.getItems();
+})
 
-export const clearCompleted = createAsyncThunk<TTodoList, undefined>(
+export const clearCompleted = createAsyncThunk(
     'todoList/clearCompleted',
     async (_, { dispatch }) => {
         const response = await TodoListDB.clearCompleted();
 
         if (response) {
             const { payload } = await dispatch(getItems());
-            return payload;
+            return payload as TTodoList;
         }
         return [];
     }
 )
 
-export const deleteItem = createAsyncThunk<TTodoList, TTodoListItem['id']>(
+export const deleteItem = createAsyncThunk(
     'todoList/deleteItem',
     async (id: TTodoListItem['id'], { dispatch }) => {
         const response = await TodoListDB.deleteItem(id);
 
         if (response) {
             const { payload } = await dispatch(getItems());
-            return payload;
+            return payload as TTodoList;
         }
         return [];
     }
 )
 
-export const createItem = createAsyncThunk<TTodoList, TTodoListItem['text']>(
+export const createItem = createAsyncThunk<TTodoList, string>(
     'todoList/createItem',
     async (text: TTodoListItem['text'], { dispatch }) => {
         const response = await TodoListDB.createItem(text);
 
         if (response) {
             const { payload } = await dispatch(getItems());
-            return payload;
+            return payload as TTodoList;
         }
         return [];
     }
 )
 
-export const toggleStatus = createAsyncThunk<TTodoList, TTodoListItem['id']>(
+export const toggleStatus = createAsyncThunk(
     'todoList/toggleStatus',
     async (id: TTodoListItem['id'], { dispatch }) => {
         const response = await TodoListDB.toggleStatus(id);
 
         if (response) {
             const { payload } = await dispatch(getItems());
-            return payload;
+            return payload as TTodoList;
         }
         return [];
     }
@@ -106,7 +103,7 @@ export const todoListSlice = createSlice({
             }
         },
         toggleModal: (state, action: PayloadAction<boolean>) => {
-            state.addModalOpen = action.payload;
+            state.isAddModalOpen = action.payload;
         },
     },
     extraReducers: builder => {

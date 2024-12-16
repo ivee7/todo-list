@@ -22,9 +22,7 @@ const boxStyle = {
 }
 
 export const TodoListAddModal = () => {
-    const {
-        addModalOpen,
-    } = useAppSelector((state) => state.todoList);
+    const { isAddModalOpen } = useAppSelector((state) => state.todoList);
     const dispatch = useAppDispatch();
 
     const form = useForm<TodoListFormValues>({
@@ -49,7 +47,7 @@ export const TodoListAddModal = () => {
 
     return (
         <Modal
-            open={addModalOpen}
+            open={isAddModalOpen}
             onClose={() => dispatch(toggleModal(false))}
         >
             <Box sx={boxStyle}>

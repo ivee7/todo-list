@@ -1,7 +1,5 @@
 import todoListReducer from './todo-list-slice';
 
-const reducer = {
-  todoList: todoListReducer,
-};
+const reducer = { todoList: todoListReducer };
 
 export default reducer;
